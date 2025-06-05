@@ -1,0 +1,831 @@
+        // Máscara para valor total aproximado
+        document.getElementById('totalAproximado').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value === '') {
+                e.target.value = '';
+                return;
+            }
+            value = (value/100).toFixed(2) + '';
+            value = value.replace(".", ",");
+            value = value.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+            value = value.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            e.target.value = 'R$ ' + value;
+        });<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execução de Alimentos - Rito de Penhora</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .doc-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            background: #f8faff;
+            border-left: 4px solid #60a5fa;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        .doc-number {
+            font-weight: 600;
+            color: #2563eb;
+            margin-right: 10px;
+            min-width: 30px;
+        }
+
+        .doc-text {
+            color: #1e40af;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e40af;
+            line-height: 1.4;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1f0ff;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .months-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .months-table th {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .months-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e1f0ff;
+        }
+
+        .months-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .months-table input:focus {
+            border-color: #60a5fa;
+            outline: none;
+        }
+
+        .month-name {
+            font-weight: 600;
+            color: #1e40af;
+            background: #f8faff;
+        }
+
+        .alert-box {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #1e40af;
+        }
+
+        .alert-box h4 {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .submit-section {
+            background: #f8faff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .output-section {
+            display: none;
+            background: #f0f8ff;
+            border: 2px solid #60a5fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .output-section h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .output-content {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-line;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #d4e6f1;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-copy, .btn-whatsapp, .btn-pdf {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .btn-copy:hover, .btn-whatsapp:hover, .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-copy:active, .btn-whatsapp:active, .btn-pdf:active {
+            transform: translateY(0);
+        }
+
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .months-table {
+                font-size: 12px;
+            }
+
+            .months-table th,
+            .months-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Execução de Alimentos</h1>
+            <p>Rito de Penhora (parcelas anteriores aos 3 últimos meses)</p>
+        </div>
+
+        <div class="form-container">
+            <form id="execucaoForm">
+                <!-- Seção de Dados Pessoais -->
+                <div class="section">
+                    <div class="section-title">👤 Dados Pessoais da Parte Requerente</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nomeCompleto">Nome completo <span class="required">*</span></label>
+                            <input type="text" id="nomeCompleto" name="nomeCompleto" required placeholder="Digite seu nome completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cpf">CPF <span class="required">*</span></label>
+                            <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" maxlength="14">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de Documentos -->
+                <div class="section">
+                    <div class="section-title">📋 Documentos Necessários (deverão ser apresentados no dia do atendimento)</div>
+                    <div class="doc-list">
+                        <div class="doc-item">
+                            <span class="doc-number">01)</span>
+                            <span class="doc-text">Documentos pessoais (RG e CPF) da representante da parte requerente</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">02)</span>
+                            <span class="doc-text">Comprovante de residência (conta de água/luz/telefone) que conste em nome da parte autora (se estiver em nome de terceiro, trazer declaração de que reside no local)</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">03)</span>
+                            <span class="doc-text">Comprovante de renda familiar (carteira de trabalho, contracheque, benefício previdenciário, declaração IRPF)</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">04)</span>
+                            <span class="doc-text">Certidão de nascimento dos filhos que estão a cobrar os alimentos</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">05)</span>
+                            <span class="doc-text">Endereço completo e telefone (comercial ou residencial) da parte devedora</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">06)</span>
+                            <span class="doc-text">Cartão bancário para depósito de pensão alimentícia (banco, agência e conta)</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">07)</span>
+                            <span class="doc-text">Extratos bancários de todo o período que deseja cobrar a pensão alimentícia em atraso</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">08)</span>
+                            <span class="doc-text">Documentos que comprovem bens em nome da parte devedora (certidão de matrícula de imóveis, documentos de veículos, extratos bancários, etc.)</span>
+                        </div>
+                        <div class="doc-item">
+                            <span class="doc-number">09)</span>
+                            <span class="doc-text">Cópia da decisão judicial que fixou a pensão alimentícia</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Seção de Esclarecimentos -->
+                <div class="section">
+                    <div class="section-title">📝 Informações sobre o Processo</div>
+                    
+                    <div class="form-group">
+                        <label for="processoJudicial">A) Número do processo que fixou a pensão alimentícia e fórum/cidade <span class="required">*</span></label>
+                        <textarea id="processoJudicial" name="processoJudicial" required placeholder="Informe o número do processo, fórum/cidade onde tramitou"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valorFixado">B) Valor fixado a título de alimentos <span class="required">*</span></label>
+                        <input type="text" id="valorFixado" name="valorFixado" required placeholder="Ex: R$ 800,00 ou 30% do salário mínimo">
+                    </div>
+
+
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contaBancaria">C) Dados da conta bancária para depósito <span class="required">*</span></label>
+                            <textarea id="contaBancaria" name="contaBancaria" required placeholder="Banco, agência, conta corrente/poupança, titular da conta"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="empregador">D) Dados do empregador da parte devedora (se souber)</label>
+                            <textarea id="empregador" name="empregador" placeholder="Nome da empresa, endereço, CNPJ (se souber)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bensConhecidos">E) Bens conhecidos da parte devedora</label>
+                        <textarea id="bensConhecidos" name="bensConhecidos" placeholder="Descreva imóveis, veículos, contas bancárias ou outros bens que conhece"></textarea>
+                    </div>
+                </div>
+
+                <!-- Seção da Tabela de Períodos -->
+                <div class="section">
+                    <div class="section-title">📅 Períodos em Atraso para Cobrança</div>
+                    
+                    <div class="alert-box">
+                        <h4>ℹ️ Informação Importante:</h4>
+                        <p>No rito de penhora são compreendidas as parcelas que não foram incluídas na ação com rito de prisão - que compreende as 03 últimas parcelas vencidas. Ex: se cobrado na ação com rito de prisão os meses de Outubro, Novembro e Dezembro de 2024, poderão ser cobrados na ação com rito de penhora os meses anteriores (Setembro, Agosto, etc.).</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="periodoInicial">Data inicial do débito:</label>
+                        <input type="month" id="periodoInicial" name="periodoInicial" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="periodoFinal">Data final do débito (3 meses antes do mês atual):</label>
+                        <input type="month" id="periodoFinal" name="periodoFinal" required>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="pagamentosRealizados">Pagamentos realizados no período:</label>
+                        <div class="table-container">
+                            <table class="months-table">
+                                <thead>
+                                    <tr>
+                                        <th>Valor Pago (R$)</th>
+                                        <th>Data do Pagamento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_0" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_1" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_2" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_2"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_3" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_3"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_4" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_4"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_5" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_6" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_6"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_7" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_7"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_8" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_8"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="valorPago_9" placeholder="Ex: R$ 400,00" class="valor-input"></td>
+                                        <td><input type="date" name="dataPago_9"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalAproxImado">Valor total aproximado do débito:</label>
+                        <input type="text" id="totalAproximado" name="totalAproximado" placeholder="Ex: R$ 15.000,00">
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="btn-submit">📝 Gerar Formulário</button>
+                    <div id="outputSection" class="output-section">
+                        <h3>Formulário Preenchido - Copie e Envie:</h3>
+                        <div id="outputContent" class="output-content"></div>
+                        <div class="action-buttons">
+                            <button type="button" id="copyBtn" class="btn-copy">📋 Copiar Texto</button>
+                            <button type="button" id="whatsappBtn" class="btn-whatsapp">📱 Enviar via WhatsApp</button>
+                            <button type="button" id="generatePdfBtn" class="btn-pdf">📄 Gerar PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Definir período final automaticamente (3 meses antes do atual)
+        function definirPeriodoFinal() {
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+            
+            // 3 meses antes
+            let mesFinal = mesAtual - 3;
+            let anoFinal = anoAtual;
+            
+            if (mesFinal < 0) {
+                mesFinal += 12;
+                anoFinal--;
+            }
+            
+            const dataFinal = new Date(anoFinal, mesFinal, 1);
+            const mesFormatado = String(dataFinal.getMonth() + 1).padStart(2, '0');
+            const periodoFinal = `${dataFinal.getFullYear()}-${mesFormatado}`;
+            
+            document.getElementById('periodoFinal').value = periodoFinal;
+        }
+
+        // Executar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            definirPeriodoFinal();
+            inicializarPagamentos();
+        });
+
+        // Variável global para controlar pagamentos
+        let contadorPagamentos = 0;
+        
+        function inicializarPagamentos() {
+            // Adicionar evento ao botão de adicionar
+            const btnAdd = document.getElementById('addPagamento');
+            if (btnAdd) {
+                btnAdd.addEventListener('click', adicionarCampoPagamento);
+            }
+        }
+        
+        function adicionarCampoPagamento() {
+            if (contadorPagamentos >= 20) {
+                alert('Máximo de 20 pagamentos permitidos');
+                return;
+            }
+            
+            const container = document.getElementById('pagamentosContainer');
+            if (!container) {
+                console.error('Container de pagamentos não encontrado');
+                return;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'pagamento-item';
+            div.innerHTML = `
+                <input type="month" name="mesPagamento_${contadorPagamentos}" placeholder="Selecione o mês/ano" style="padding: 8px;">
+                <input type="text" name="valorPagamento_${contadorPagamentos}" placeholder="Ex: R$ 400,00" class="valor-input" style="padding: 8px;">
+                <button type="button" class="btn-remove" onclick="removerPagamento(this)">Remover</button>
+            `;
+            
+            container.appendChild(div);
+            
+            // Aplicar máscara ao campo de valor
+            const valorInput = div.querySelector('.valor-input');
+            aplicarMascaraValor(valorInput);
+            
+            contadorPagamentos++;
+        }
+        
+        function removerPagamento(button) {
+            if (button && button.parentElement) {
+                button.parentElement.remove();
+            }
+        }
+        
+        function aplicarMascaraValor(input) {
+            if (!input) return;
+            
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                if (value === '') {
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Converter para centavos
+                let valueInt = parseInt(value);
+                let formatted = (valueInt / 100).toFixed(2);
+                
+                // Formatar para moeda brasileira
+                formatted = formatted.replace('.', ',');
+                formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                
+                e.target.value = 'R$ ' + formatted;
+            });
+        }
+
+        document.getElementById('execucaoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            let output = 'FORMULÁRIO - EXECUÇÃO DE ALIMENTOS (RITO DE PENHORA)\n';
+            output += '='.repeat(65) + '\n\n';
+            
+            // Dados Pessoais
+            output += '👤 DADOS PESSOAIS DA PARTE REQUERENTE:\n';
+            const nomeCompleto = formData.get('nomeCompleto');
+            const cpf = formData.get('cpf');
+            if (nomeCompleto) output += `Nome: ${nomeCompleto}\n`;
+            if (cpf) output += `CPF: ${cpf}\n`;
+            output += '\n';
+            
+            // Documentos
+            output += '📋 DOCUMENTOS NECESSÁRIOS PARA ATENDIMENTO:\n';
+            output += '01) Documentos pessoais (RG e CPF) da representante\n';
+            output += '02) Comprovante de residência em nome da parte autora\n';
+            output += '03) Comprovante de renda familiar\n';
+            output += '04) Certidão de nascimento dos filhos beneficiários\n';
+            output += '05) Endereço completo e telefone da parte devedora\n';
+            output += '06) Dados bancários para depósito\n';
+            output += '07) Extratos bancários de todo o período em atraso\n';
+            output += '08) Documentos de bens da parte devedora\n';
+            output += '09) Cópia da decisão que fixou a pensão\n';
+            output += '\n';
+            
+            output += '📝 INFORMAÇÕES DO PROCESSO:\n';
+            output += `-${''.repeat(45)}\n`;
+            
+            // Informações do processo
+            const infos = [
+                { key: 'processoJudicial', label: 'A) Processo que fixou a pensão' },
+                { key: 'valorFixado', label: 'B) Valor fixado de alimentos' },
+                { key: 'contaBancaria', label: 'C) Dados da conta bancária' },
+                { key: 'empregador', label: 'D) Dados do empregador da parte devedora' },
+                { key: 'bensConhecidos', label: 'E) Bens conhecidos da parte devedora' }
+            ];
+            
+            infos.forEach(info => {
+                const value = formData.get(info.key);
+                if (value && value.trim()) {
+                    output += `${info.label}: ${value}\n\n`;
+                }
+            });
+            
+            // Informações do período
+            output += '📅 PERÍODO E VALORES EM ATRASO:\n';
+            output += `-${''.repeat(45)}\n`;
+            
+            const periodoInicial = formData.get('periodoInicial');
+            const periodoFinal = formData.get('periodoFinal');
+            const totalAproximado = formData.get('totalAproximado');
+            
+            if (periodoInicial) {
+                const [ano, mes] = periodoInicial.split('-');
+                const dataInicial = new Date(ano, mes - 1);
+                const mesNome = dataInicial.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                output += `Período inicial: ${mesNome}\n`;
+            }
+            
+            if (periodoFinal) {
+                const [ano, mes] = periodoFinal.split('-');
+                const dataFinal = new Date(ano, mes - 1);
+                const mesNome = dataFinal.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                output += `Período final: ${mesNome}\n`;
+            }
+            
+            if (totalAproximado) output += `Total aproximado do débito: ${totalAproximado}\n\n`;
+            
+            // Listar pagamentos realizados
+            output += 'Pagamentos realizados no período:\n';
+            let temPagamentos = false;
+            for (let i = 0; i < 20; i++) {
+                const mes = formData.get(`mesPagamento_${i}`);
+                const valor = formData.get(`valorPagamento_${i}`);
+                
+                if (mes && valor) {
+                    const [ano, mesNum] = mes.split('-');
+                    const data = new Date(ano, mesNum - 1);
+                    const mesNome = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                    output += `• ${mesNome}: ${valor}\n`;
+                    temPagamentos = true;
+                }
+            }
+            
+            if (!temPagamentos) {
+                output += '• Nenhum pagamento informado\n';
+            }
+            output += '\n';
+            
+            output += '⚠️ OBSERVAÇÕES IMPORTANTES:\n';
+            output += '• No rito de penhora são compreendidas as parcelas que não foram\n';
+            output += '  incluídas na ação com rito de prisão (03 últimas parcelas vencidas).\n';
+            output += '• O débito será atualizado com correção monetária e juros legais.\n';
+            output += '• Será necessário localizar bens da parte devedora para penhora.\n';
+            output += '• O processo poderá incluir pedido de bloqueio de contas bancárias.\n\n';
+            
+            output += '='.repeat(65) + '\n';
+            output += `Data do preenchimento: ${new Date().toLocaleDateString('pt-BR')}\n`;
+            
+            document.getElementById('outputContent').textContent = output;
+            document.getElementById('outputSection').style.display = 'block';
+            
+            document.getElementById('outputSection').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+
+        // Função para copiar texto
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const content = document.getElementById('outputContent').textContent;
+            navigator.clipboard.writeText(content).then(function() {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copiado!';
+                btn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'linear-gradient(135deg, #2563eb 0%, #60a5fa 100%)';
+                }, 2000);
+            });
+        });
+
+        // Função para enviar via WhatsApp
+        document.getElementById('whatsappBtn').addEventListener('click', function() {
+            const content = document.getElementById('outputContent').textContent;
+            
+            let message = encodeURIComponent(content);
+            
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            let whatsappUrl;
+            
+            if (isMobile) {
+                whatsappUrl = `whatsapp://send?text=${message}`;
+            } else {
+                whatsappUrl = `https://web.whatsapp.com/send?text=${message}`;
+            }
+            
+            const link = document.createElement('a');
+            link.href = whatsappUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => {
+                if (!document.hidden) {
+                    const fallbackUrl = `https://wa.me/?text=${message}`;
+                    window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+                }
+            }, 1000);
+        });
+
+        // Função para gerar PDF
+        document.getElementById('generatePdfBtn').addEventListener('click', function() {
+            const content = document.getElementById('outputContent').textContent;
+            
+            const pdfContent = document.createElement('div');
+            pdfContent.style.cssText = `
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                line-height: 1.4;
+                white-space: pre-line;
+                padding: 40px;
+                background: white;
+                max-width: 210mm;
+                margin: 0 auto;
+            `;
+            pdfContent.textContent = content;
+            
+            document.body.appendChild(pdfContent);
+            
+            const originalContents = document.body.innerHTML;
+            document.body.innerHTML = pdfContent.outerHTML;
+            
+            window.print();
+            
+            document.body.innerHTML = originalContents;
+            
+            location.reload();
+        });
+
+        // Máscara para CPF
+        document.getElementById('cpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        });
+
