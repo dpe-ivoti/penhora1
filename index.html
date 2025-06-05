@@ -1,16 +1,4 @@
-        // Máscara para valor total aproximado
-        document.getElementById('totalAproximado').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value === '') {
-                e.target.value = '';
-                return;
-            }
-            value = (value/100).toFixed(2) + '';
-            value = value.replace(".", ",");
-            value = value.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
-            value = value.replace(/(\d)(\d{3}),/g, "$1.$2,");
-            e.target.value = 'R$ ' + value;
-        });<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
